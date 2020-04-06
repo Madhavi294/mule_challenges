@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c4c64792-6af0-4370-97b0-fddd24536935" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="a28d1f4d-1b75-4de8-b85a-17952a75ce93" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<flow name="challengesFlow1" doc:id="7d349b20-29fa-448f-a8af-adec21392aa9" >
+		<http:listener doc:name="Listener" doc:id="b38c1b83-a070-4075-a001-e35ad6cc5ccc" path="/employee" config-ref="HTTP_Listener_config">
+			<http:response statusCode="201" >
+			</http:response>
+		</http:listener>
+		<set-payload value='#[payload.employee.first_name ++ " " ++ payload.employee.last_name ++ " employee profile is created in HRMS System."]' doc:name="Set Payload" doc:id="e5a60f1f-9389-4e4a-abe5-58f10d44834e" />
+		<http:request method="POST" doc:name="Request" doc:id="e4a84980-95a1-4ab0-b6cd-d9ac779d8536" config-ref="HTTP_Request_configuration" path="/publish"/>
+	</flow>
+</mule>
