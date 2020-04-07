@@ -14,15 +14,17 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
+import * from dw::core::Arrays
 ---
-{	
-		employee: payload.employee filter not $.id == payload.scoreBoard.id map {
-			id: $.id,
-			first_name: $.first_name,
-			last_name: $.last_name
-		}	
-}
+certificate:leftJoin(payload.employee, payload.scoreBoard,  (leftval) -> leftval.id, (rightval) -> rightval.id) map(value,inxed) -> 
 
+{
+		id:value.l.id,
+		firstName:value.l.first_name,
+		LastName:value.l.last_name,
+		MarksBySubjectWise:[value.r mapObject {(value.r.subjects[$$$]):value.r.score[$$$]}]
+		
+}
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
