@@ -14,22 +14,24 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
-	
+import * from dw::core::Arrays
+//var payload1 = {"employee":[{"id":"A007","first_name":"Jan","last_name":"Doe"},{"id":"A008","first_name":"Ron","last_name":"David"},{"id":"A009","first_name":"Jane","last_name":"Kane"},{"id":"A010","first_name":"Marsh","last_name":"Megan"},{"id":"A011","first_name":"Kelly","last_name":"Mitch"},{"id":"A012","first_name":"Chris","last_name":"Vaste"}]}
+
+//var payload2 = {"scoreBoard":[{"id":"A007","subjects":["Maths","English","Arts","Drawimgs"],"score":[80,75,89,100]},{"id":"A008","subjects":["Maths","English","Arts","Drawimgs"],"score":[70,85,69,90]},{"id":"A021","subjects":["Maths","English","Arts","Drawimgs"],"score":[90,87,77,95]}]}
+
 ---
+
+
+certificate:join(payload.employee, payload.scoreBoard,  (leftval) -> leftval.id, (rightval) -> rightval.id) map(value,inxed) -> 
+
 {
-	certificate: payload.employee map ( employee , indexOfEmployee ) -> [{
-		id: employee.id,
-		firstName: employee.first_name,
-		LastName: employee.last_name,
-		MarksBySubjectWise: payload.scoreBoard filter $.id == employee.id map 
-		{
-			Maths : $.score[0],
-			English: $.score[1],
-			Arts: $.score[2],
-			Drawings:$.score[3]
-		}
-	}]
-}]]></ee:set-payload>
+		id:value.l.id,
+		firstName:value.l.first_name,
+		LastName:value.l.last_name,
+		MarksBySubjectWise:[value.r mapObject {(value.r.subjects[$$$]):value.r.score[$$$]}]
+		
+}
+]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
