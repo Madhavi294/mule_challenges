@@ -9,20 +9,30 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		<http:listener-connection host="0.0.0.0" port="8085" />
 	</http:listener-config>
 	<flow name="challenge5Flow" doc:id="9a874852-adb9-446a-b1cf-e5a35d09dd56" >
-		<http:listener doc:name="Listener" doc:id="baae53ad-4496-4911-9d44-4894f333f654" config-ref="HTTP_Listener_challenges5" path="/{value}"/>
+		<http:listener doc:name="Listener" doc:id="baae53ad-4496-4911-9d44-4894f333f654" config-ref="HTTP_Listener_challenges5" path="/{value}">
+			<http:response statusCode="#[vars.httpRespCode]" />
+		</http:listener>
 		<ee:transform doc:name="Transform Message" doc:id="950cff02-7b8d-4476-9029-5cc9fc26f10e">
 			<ee:message>
 				<ee:set-payload><![CDATA[
 %dw 2.0 
 output application/json
-fun constructNN(values:Array, maxSize: Number) = if(sizeOf(values) >= maxSize )
-values
-else
-constructNN(values ++ [(sizeOf(values) + 1) as Number],maxSize)
-
+import isNumeric from dw::core::Strings
+var inValue = attributes.uriParams.value
 ---
-constructNN([],attributes.uriParams.value!)]]></ee:set-payload>
+
+ if (isNumeric(inValue) and inValue > 0) (1 to inValue as Number) else "Invalid value"]]></ee:set-payload>
 			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpRespCode" ><![CDATA[%dw 2.0
+output application/json
+import isNumeric from dw::core::Strings
+var inValue = attributes.uriParams.value
+---
+
+ if (isNumeric(inValue) and inValue > 0) (200) else 500]]></ee:set-variable>
+			</ee:variables>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="14c0ce40-02b7-4489-afa5-61d92818c625" message="#[vars.httpRespCode]"/>
 	</flow>
 </mule>
